@@ -1,7 +1,26 @@
 import { NextFunction, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { getUsuarioByEmail, createUsuario, Usuario } from '../models/Usuario';
+import { getUsuarioByEmail, createUsuario, Usuario, getUsuarioById } from '../models/Usuario';
+
+interface AuthenticatedRequest extends Request {
+  id?: string;
+}
+
+export const buscar = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+  let usuario: Usuario;
+  try {
+    if(req.query.id != null){
+      const usuarioId = req.query.id!;
+      usuario = await getUsuarioById(Number(usuarioId));
+      return res.status(200).json(usuario);
+    } else {
+      return res.status(400).json({ message: 'O ID e obrigatorio' });
+    }
+  } catch (error) {
+    next(error);
+  }
+}
 
 export const signup = async (req: Request, res: Response) => {
   const { nome, email, dataNascimento, senha, confirmacaoSenha } = req.body;
@@ -18,7 +37,7 @@ export const signup = async (req: Request, res: Response) => {
 
   const hashedPassword = await bcrypt.hash(senha, 10);
 
-  if(dataNascimento.length > 10) dataNascimento.split('T')[0];
+  dataNascimento.split('T')[0];
 
   const newUsuario: Usuario = {
     id: 0,
