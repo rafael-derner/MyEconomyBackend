@@ -18,6 +18,8 @@ export const signup = async (req: Request, res: Response) => {
 
   const hashedPassword = await bcrypt.hash(senha, 10);
 
+  if(dataNascimento.length > 10) dataNascimento.split('T')[0];
+
   const newUsuario: Usuario = {
     id: 0,
     nome,
