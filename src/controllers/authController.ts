@@ -18,8 +18,6 @@ export const signup = async (req: Request, res: Response) => {
 
   const hashedPassword = await bcrypt.hash(senha, 10);
 
-  if(dataNascimento.length > 10) dataNascimento.split('T')[0];
-
   const newUsuario: Usuario = {
     id: 0,
     nome,
@@ -46,9 +44,9 @@ export const signin = async (req: Request, res: Response, next: NextFunction) =>
     const token = jwt.sign({ usuarioId: usuario.id }, process.env.JWT_SECRET!, {
       expiresIn: '1h',
     });
-
-    return res.status(200).json({ token, usuario });
+    
+    return res.status(200).json({ token: token, id: usuario.id.toString(), nome: usuario.nome, email: usuario.email, dataNascimento: usuario.dataNascimento });
   } catch (error) {
-    next(error); 
+    next(error);
   }
 };

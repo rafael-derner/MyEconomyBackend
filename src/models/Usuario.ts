@@ -20,5 +20,7 @@ export const getUsuarioByEmail = async (email: string): Promise<Usuario | null> 
 }
 
 export const createUsuario = async (usuario: Usuario): Promise<void> => {
-  await pool.query('INSERT INTO usuario (nome, email, data_nascimento, senha) VALUES (?, ?, ?, ?)', [usuario.nome, usuario.email, usuario.dataNascimento, usuario.senha]);
+  var dtNascimento = usuario.dataNascimento;
+  if (usuario.dataNascimento.length > 10) dtNascimento = dtNascimento.split('T')[0];
+  await pool.query('INSERT INTO usuario (nome, email, dataNascimento, senha) VALUES (?, ?, ?, ?)', [usuario.nome, usuario.email, dtNascimento, usuario.senha]);
 };

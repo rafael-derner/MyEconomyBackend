@@ -1,11 +1,13 @@
+import { RowDataPacket } from 'mysql2';
 import pool from '../utils/db';
 
 export interface Despesa {
   id: number;
-  usuario_id: number;
+  usuarioId: number;
   descricao: string;
   valor: number;
-  limite_mes_id: number;
+  limiteMesId: number;
+  mes: string;
 }
 
 export const getAllDespesas = async (): Promise<Despesa[]> => {
@@ -13,13 +15,22 @@ export const getAllDespesas = async (): Promise<Despesa[]> => {
   return rows as Despesa[];
 };
 
-export const getDespesaById = async (id: number): Promise<Despesa[]> => {
-  const [rows] = await pool.query('SELECT * FROM despesa WHERE id = ?', [id]);
+export const getDespesaById = async (id: number): Promise<Despesa | null> => {
+  const [rows] = await pool.query<RowDataPacket[]>('SELECT * FROM despesa WHERE id = ?', [id]);
+  return rows.length ? (rows[0] as Despesa) : null;
+};
+
+export const getDespesaByMes = async (mes: string, usuario: number): Promise<Despesa[]> => {
+  const [rows] = await pool.query('SELECT * FROM despesa WHERE usuarioId = ? AND limiteMesId = (SELECT id FROM limiteMes WHERE mes like ?)', [usuario, mes]);
   return rows as Despesa[];
 };
 
-export const createDespesa = async (despesa: Despesa): Promise<void> => {
-  await pool.query('INSERT INTO despesa (usuario_id, descricao, valor, limite_mes_id) VALUES (?, ?, ?, ?)', [despesa.usuario_id, despesa.descricao, despesa.valor, despesa.limite_mes_id]);
+export const create = async (despesa: Despesa): Promise<void> => {
+  await pool.query('INSERT INTO despesa (usuarioId, descricao, valor, limiteMesId, mes) VALUES (?, ?, ?, (SELECT id FROM limiteMes WHERE mes like ?), ?)', [despesa.usuarioId, despesa.descricao, despesa.valor, despesa.mes, despesa.mes] );
+};
+
+export const update = async (despesa: Despesa): Promise<void> => {
+  await pool.query('UPDATE despesa SET usuarioId = ?, descricao = ?, valor = ?, limiteMesId = (SELECT id FROM limiteMes WHERE mes like ?), mes = ? WHERE id = ?', [despesa.usuarioId, despesa.descricao, despesa.valor, despesa.mes, despesa.mes, despesa.id] );
 };
 
 export const deleteDespesa = async (id: number): Promise<void> => {
