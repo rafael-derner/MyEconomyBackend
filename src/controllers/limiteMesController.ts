@@ -65,16 +65,25 @@ export const createNewLimiteMes = async (req: AuthenticatedRequest, res: Respons
 
 export const updateLimiteMes = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   const { id, valor, mes } = req.body;
-  try {
-    const limiteMes = {
-      id: id,
-      valor: valor,
-      mes: mes,
-      usuarioId: Number(res.locals.usuario.id)
-    };
+  try {    
+    if(valor == "" || mes == ""){
+      throw new Error("Os campos são obrigatórios");
+    }
 
-    await update(limiteMes);
-    return res.status(201).json({ message: 'Despesa atualizada com sucesso' });
+    const mesString = mes.split('/')[0];
+    const anoString = mes.split('/')[1];
+    if(isFuture(mesString, anoString)){
+      const limiteMes = {
+        id: id,
+        valor: valor,
+        mes: mes,
+        usuarioId: Number(res.locals.usuario.id)
+      };
+
+      await update(limiteMes);
+      return res.status(201).json({ message: 'Despesa atualizada com sucesso' });
+    }
+    throw new Error("O mês do limite não pode ser anterior ao mês atual");
   } catch (error) {
     next(error)
   }

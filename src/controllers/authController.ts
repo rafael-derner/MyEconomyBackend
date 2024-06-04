@@ -1,54 +1,41 @@
-import { NextFunction, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
+import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { getUsuarioByEmail, createUsuario, Usuario, getUsuarioById } from '../models/Usuario';
+import { Usuario, createUsuario, getUsuarioByEmail } from '../models/Usuario';
 
-interface AuthenticatedRequest extends Request {
-  id?: string;
-}
+export const signup = async (req: Request, res: Response, next: NextFunction) => {
+  const { nome, email, dataNascimento, senha, confirmacaoSenha } = req.body;
 
-export const buscar = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  let usuario: Usuario;
   try {
-    if(req.query.id != null){
-      const usuarioId = req.query.id!;
-      usuario = await getUsuarioById(Number(usuarioId));
-      return res.status(200).json(usuario);
-    } else {
-      return res.status(400).json({ message: 'O ID e obrigatorio' });
+    if(nome == "" || email == "" ||  dataNascimento == "" ||  senha == "" ||  confirmacaoSenha == ""){
+      throw new Error("Os campos são obrigatórios")
     }
+    if (senha !== confirmacaoSenha) {
+      return res.status(400).json({ message: 'As senhas não coincidem' });
+    }
+  
+    const existingUsuario = await getUsuarioByEmail(email);
+  
+    if (existingUsuario) {
+      return res.status(400).json({ message: 'Email já cadastrado' });
+    }
+  
+    const hashedPassword = await bcrypt.hash(senha, 10);
+    
+    const newUsuario: Usuario = {
+      id: 0,
+      nome,
+      email,
+      dataNascimento,
+      senha: hashedPassword,
+    };
+  
+    await createUsuario(newUsuario);
+  
+    return res.status(201).json({ message: 'Usuario created successfully' });
   } catch (error) {
     next(error);
   }
-}
-
-export const signup = async (req: Request, res: Response) => {
-  const { nome, email, dataNascimento, senha, confirmacaoSenha } = req.body;
-
-  if (senha !== confirmacaoSenha) {
-    return res.status(400).json({ message: 'As senhas não coincidem' });
-  }
-
-  const existingUsuario = await getUsuarioByEmail(email);
-
-  if (existingUsuario) {
-    return res.status(400).json({ message: 'Email já cadastrado' });
-  }
-
-  const hashedPassword = await bcrypt.hash(senha, 10);
-  
-  dataNascimento.split('T')[0];
-  const newUsuario: Usuario = {
-    id: 0,
-    nome,
-    email,
-    dataNascimento,
-    senha: hashedPassword,
-  };
-
-  await createUsuario(newUsuario);
-
-  return res.status(201).json({ message: 'Usuario created successfully' });
 };
 
 export const signin = async (req: Request, res: Response, next: NextFunction) => {
