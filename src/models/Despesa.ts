@@ -26,11 +26,11 @@ export const getDespesaByMes = async (mes: string, usuario: number): Promise<Des
 };
 
 export const create = async (despesa: Despesa): Promise<void> => {
-  await pool.query('INSERT INTO despesa (usuarioId, descricao, valor, limiteMesId, mes) VALUES (?, ?, ?, (SELECT id FROM limiteMes WHERE mes like ?), ?)', [despesa.usuarioId, despesa.descricao, despesa.valor, despesa.mes, despesa.mes] );
+  await pool.query('INSERT INTO despesa (usuarioId, descricao, valor, limiteMesId, mes) VALUES (?, ?, ?, (SELECT id FROM limiteMes WHERE mes like ? and usuarioId = ?), ?)', [despesa.usuarioId, despesa.descricao, despesa.valor, despesa.mes, despesa.usuarioId, despesa.mes] );
 };
 
 export const update = async (despesa: Despesa): Promise<void> => {
-  await pool.query('UPDATE despesa SET usuarioId = ?, descricao = ?, valor = ?, limiteMesId = (SELECT id FROM limiteMes WHERE mes like ?), mes = ? WHERE id = ?', [despesa.usuarioId, despesa.descricao, despesa.valor, despesa.mes, despesa.mes, despesa.id] );
+  await pool.query('UPDATE despesa SET usuarioId = ?, descricao = ?, valor = ?, limiteMesId = (SELECT id FROM limiteMes WHERE mes like ? and usuarioId = ?), mes = ? WHERE id = ?', [despesa.usuarioId, despesa.descricao, despesa.valor, despesa.mes, despesa.usuarioId, despesa.mes, despesa.id] );
 };
 
 export const deleteDespesa = async (id: number): Promise<void> => {
