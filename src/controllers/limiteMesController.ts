@@ -12,7 +12,7 @@ export const getLimiteMes = async (req: AuthenticatedRequest, res: Response, nex
     if(req.query.id != null){
       return res.status(200).json(await getLimiteMesById(Number(req.query.id!)));
     } else if(req.query.mes != null){
-      return res.status(200).json(await getLimiteMesByMes(String(req.query.mes!)));
+      return res.status(200).json(await getLimiteMesByMes(Number(res.locals.usuario.id), String(req.query.mes!)));
     } 
     return res.status(200).json(await getLimiteMesByUsuarioId(Number(res.locals.usuario.id)));
   } catch (error) {
@@ -40,7 +40,7 @@ export const createNewLimiteMes = async (req: AuthenticatedRequest, res: Respons
       throw new Error("Os campos são obrigatórios");
     }
 
-    const mesDuplicado = await getLimiteMesByMes(mes);
+    const mesDuplicado = await getLimiteMesByMes(Number(res.locals.usuario.id), mes);
     if(mesDuplicado.length > 0){
       throw new Error("Já foi registrado um limite para o mês selecionado");
     }

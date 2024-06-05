@@ -1,4 +1,3 @@
-import { RowDataPacket } from 'mysql2';
 import pool from '../utils/db';
 
 export interface LimiteMes {
@@ -18,8 +17,8 @@ export const getLimiteMesById = async (id: number): Promise<LimiteMes[]> => {
   return rows as LimiteMes[];
 };
 
-export const getLimiteMesByMes = async (mes: string): Promise<LimiteMes[]> => {
-  const [rows] = await pool.query('SELECT * FROM limiteMes WHERE mes like ?', [mes]);
+export const getLimiteMesByMes = async (usuarioId: number, mes: string): Promise<LimiteMes[]> => {
+  const [rows] = await pool.query('SELECT * FROM limiteMes WHERE mes like ? and usuarioId = ?', [mes, usuarioId]);
   return rows as LimiteMes[];
 };
 
