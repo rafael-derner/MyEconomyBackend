@@ -26,7 +26,13 @@ export const getDespesaByMes = async (mes: string, usuario: number): Promise<Des
 };
 
 export const create = async (despesa: Despesa): Promise<void> => {
-  await pool.query('INSERT INTO despesa (usuarioId, descricao, valor, limiteMesId, mes) VALUES (?, ?, ?, (SELECT id FROM limiteMes WHERE mes like ? and usuarioId = ?), ?)', [despesa.usuarioId, despesa.descricao, despesa.valor, despesa.mes, despesa.usuarioId, despesa.mes] );
+  try {
+    await pool.query('INSERT INTO despesa (usuarioId, descricao, valor, limiteMesId, mes) VALUES (?, ?, ?, (SELECT id FROM limiteMes WHERE mes like ? and usuarioId = ?), ?)', [despesa.usuarioId, despesa.descricao, despesa.valor, despesa.mes, despesa.usuarioId, despesa.mes]);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error("Erro ao inserir despesa");
+    }
+  }
 };
 
 export const update = async (despesa: Despesa): Promise<void> => {
