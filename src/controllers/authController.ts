@@ -8,10 +8,14 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
 
   try {
     if(nome == "" || email == "" ||  dataNascimento == "" ||  senha == "" ||  confirmacaoSenha == ""){
-      throw new Error("Os campos são obrigatórios")
+      throw new Error("Os campos são obrigatórios");
     }
     if (senha !== confirmacaoSenha) {
-      return res.status(400).json({ message: 'As senhas não coincidem' });
+      throw new Error("As senhas não coincidem");
+    }
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if(!emailRegex.test(email)){
+      throw new Error("O e-mail é inválido");
     }
   
     const existingUsuario = await getUsuarioByEmail(email);
