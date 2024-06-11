@@ -21,7 +21,7 @@ export const getDespesaById = async (id: number): Promise<Despesa | null> => {
 };
 
 export const getDespesaByMes = async (mes: string, usuario: number): Promise<Despesa[]> => {
-  const [rows] = await pool.query('SELECT * FROM despesa WHERE usuarioId = ? AND limiteMesId = (SELECT id FROM limiteMes WHERE mes like ?)', [usuario, mes]);
+  const [rows] = await pool.query('SELECT * FROM despesa WHERE usuarioId = ? AND limiteMesId = (SELECT id FROM limiteMes WHERE mes like ? AND usuarioId = ?)', [usuario, mes, usuario]);
   return rows as Despesa[];
 };
 
