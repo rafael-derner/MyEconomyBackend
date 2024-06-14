@@ -28,6 +28,7 @@ export const create = async (limiteMes: LimiteMes): Promise<void> => {
 
 export const update = async (limiteMes: LimiteMes): Promise<void> => {
   await pool.query('UPDATE limiteMes SET valor = ?, mes = ? WHERE id = ?', [limiteMes.valor, limiteMes.mes, limiteMes.id] );
+  await pool.query('UPDATE despesa SET mes = ? WHERE limiteMesId = ?', [limiteMes.mes, limiteMes.id] );
 };
 
 
